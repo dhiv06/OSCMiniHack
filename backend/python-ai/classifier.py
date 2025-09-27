@@ -1,13 +1,16 @@
 # classifier.py
-# Small rule-based classifier for short, emergency-style messages.
+# Small rule-based classifier used by the Flask API to prioritize incoming
+# short messages (for example from the chat UI). The goal is to be simple,
+# deterministic, and easy to audit; this is NOT a full NLP model.
 import re
 from typing import List, Tuple
 
-# Keyword sets — expand as needed
-# These are literal substring matches against the incoming text (lowercased).
+# Two keyword sets that indicate escalating severity. These are plain-text
+# substring matches (the incoming message is lowercased before matching).
+# Expand or tweak these sets to tune sensitivity.
 SOS_KEYWORDS = {
     "sos", "mayday", "help me", "help!", "evacuate", "trapped",
-    "under rubble", "bleeding", "unconscious", "not breathing", "no pulse", "blood", "explosion", 
+    "under rubble", "bleeding", "unconscious", "not breathing", "no pulse", "blood", "explosion",
 }
 
 URGENT_KEYWORDS = {
@@ -17,38 +20,37 @@ URGENT_KEYWORDS = {
 
 
 def classify_text(text: str) -> Tuple[str, float, List[str]]:
-    """
-    Classify a message as one of: "sos", "urgent", or "normal".
+    """Classify a short message into a severity label.
 
-    Returns a tuple: (label, score, matched_keywords)
-      - label: one of the three strings above
-      - score: heuristic confidence score (1.0 for sos, 0.7 for urgent, low otherwise)
-      - matched_keywords: list of keywords from the sets that matched the text
+    Returns:
+      - label: 'sos' | 'urgent' | 'normal'
+      - score: heuristic confidence (1.0 high, ~0.7 medium, low otherwise)
+      - matched_keywords: the subset of keywords that matched the text
 
-    Notes:
-      - This is a very simple substring matcher (not NLP). It is deterministic and
-        easy to inspect/extend, but not robust to paraphrasing or typos.
-      - Empty or whitespace-only input returns a default "normal" with score 0.0.
+    Implementation notes:
+      - Empty or whitespace-only input is treated as 'normal' with score 0.0.
+      - We scan for SOS keywords first; any SOS hit yields an immediate 'sos'.
+      - If no SOS matches but one or more URGENT keywords match, we return
+        'urgent' with a lower confidence score.
+      - This function is intentionally simple: it avoids ML model dependencies
+        so it can run offline and be inspected/edited easily.
     """
     # Guard: empty or whitespace-only input
     if not text or not text.strip():
         return "normal", 0.0, []
 
-    # Lowercase the input text to make keyword matching case-insensitive
+    # Lowercase the input for case-insensitive substring matching
     t = text.lower()
-    matched = []
 
-    # Find which SOS keywords appear as substrings in the text
+    # Collect matches from each set. We return the matching keywords so the
+    # frontend or logs can show what triggered the classification.
     sos_hits = [kw for kw in SOS_KEYWORDS if kw in t]
-    # Find which URGENT keywords appear as substrings in the text
     urgent_hits = [kw for kw in URGENT_KEYWORDS if kw in t]
 
-    # If any SOS keywords are present we consider it an immediate SOS
+    # Priority: SOS > URGENT > NORMAL
     if sos_hits:
         return "sos", 1.0, sos_hits
-    # Otherwise if any urgent keywords present mark as urgent with lower confidence
     if urgent_hits:
         return "urgent", 0.7, urgent_hits
 
-    # No matches -> normal
     return "normal", 0.1, []

@@ -1,25 +1,24 @@
 # summarizer.py
-# Very small extractive summarizer based on TF-IDF sentence scoring.
+# Very small extractive summarizer used by the /api/summarize endpoint.
+# It picks the most "important" sentences from a text by scoring sentences
+# with TF-IDF and selecting the top-scoring ones.
 import re
 from typing import List
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-# A simple sentence splitter: split on punctuation followed by whitespace.
-# This will split "Hello world. This is X!" into ["Hello world.", "This is X!"]
+# A lightweight sentence splitter. It splits on punctuation (.!? ) followed by
+# whitespace — good enough for short messages and multi-sentence inputs.
 _SENTENCE_SPLIT = re.compile(r'(?<=[.!?])\s+')
 
 
 def split_sentences(text: str) -> List[str]:
-    """
-    Break text into sentences using the regex above.
+    """Split text into sentences.
 
-    If the regex doesn't yield any sentences (e.g., no punctuation), fall back
-    to splitting on lines.
+    If the regex doesn't find sentences (e.g. no punctuation), fall back to
+    splitting on newlines. Returns a list of non-empty trimmed sentence strings.
     """
-    # Use the regex to split on punctuation followed by whitespace
     sentences = [s.strip() for s in _SENTENCE_SPLIT.split(text) if s.strip()]
-    # Fallback: if nothing found, split by newline/lines
     if not sentences:
         sentences = [s.strip() for s in text.splitlines() if s.strip()]
     return sentences
@@ -28,13 +27,22 @@ def split_sentences(text: str) -> List[str]:
 class ExtractiveSummarizer:
     """Extractive summarizer that picks top-N sentences by TF-IDF score.
 
-    Behavior:
-      - Vectorize each sentence with TF-IDF (ignoring English stop words).
-      - Sum the TF-IDF weights per sentence (gives a simple importance score).
-      - Pick the highest-scoring sentences and return them in their original order.
+    How it works:
+      1. Split the input into sentences using `split_sentences`.
+      2. Vectorize each sentence with scikit-learn's TF-IDF (English stop words
+         removed).
+      3. For each sentence, sum its TF-IDF weights across all terms to get a
+         single numeric importance score.
+      4. Select the top-k scoring sentences and return them in their original
+         document order (so the summary reads sensibly).
+
+    This is intentionally simple and fast. It performs well enough for short
+    messages and gives deterministic, explainable output that is easy to
+    communicate to non-technical users.
     """
     def __init__(self):
-        # The vectorizer will convert text -> sparse TF-IDF vectors
+        # The TfidfVectorizer is created once per instance. We ignore English
+        # stop words to focus the scores on informative words.
         self.vectorizer = TfidfVectorizer(stop_words="english")
 
     def summarize(self, text: str, max_sentences: int = 3) -> List[str]:
@@ -43,17 +51,18 @@ class ExtractiveSummarizer:
         if not sentences:
             return []
 
-        # If the text is shorter than requested summary size just return it
+        # If the document is short return it unchanged
         if len(sentences) <= max_sentences:
             return sentences
 
-        # Fit the TF-IDF on the sentences and compute a score per sentence
+        # Fit TF-IDF across the sentences and compute a scalar score per
+        # sentence by summing TF-IDF weights. Higher means more "important".
         tfidf = self.vectorizer.fit_transform(sentences)  # shape: (n_sentences, n_terms)
-        # Sum TF-IDF weights across terms for each sentence to get a single importance score
         scores = np.asarray(tfidf.sum(axis=1)).ravel()
-        # Rank sentences from highest score to lowest
+
+        # Rank sentences by score (descending). We then select the indices of
+        # the top-scoring sentences and sort them so the returned sentences
+        # preserve the original reading order.
         ranked = np.argsort(-scores)
-        # Select top-k sentence indices, then sort them to preserve original order
         selected = sorted(ranked[:max_sentences])
-        # Return the selected sentences in original document order
         return [sentences[i] for i in selected]
