@@ -2,7 +2,7 @@
 """Non-interactive example runner for classifier, summarizer, and compressor.
 
 This script performs simple smoke tests for the three modules so you can
-quickly verify they work together. It is intentionally non-interactive.
+quickly verify they work together. 
 """
 from __future__ import annotations
 import sys
@@ -94,8 +94,6 @@ def main() -> int:
         run_compressor_smoke(write_out=True)
     except ImportError:
         print('\nOne or more required native packages (cv2 / opencv) are missing in this interpreter.')
-        print('Try running with your project virtualenv python. Example:')
-        print('  /home/squidlord/OSCHackathon/.venv/bin/python backend/python-ai/example_run.py')
         return 2
     except Exception as e:
         print('\nERROR during run:', e)

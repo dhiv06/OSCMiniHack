@@ -1,0 +1,8 @@
+.venv/
+source/
+__pycache__/
+example_out.jpg
+*.pyc
+*.pyo
+/.mypy_cache
+/.pytest_cache

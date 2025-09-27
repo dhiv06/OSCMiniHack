@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>OSCMiniHack Demo</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Offline-ready Comm Demo</h1>
+
+      <section id="classifier">
+        <h2>Classifier</h2>
+        <textarea id="class-text" rows="3" placeholder="Type a short message (e.g. 'help trapped')"></textarea>
+        <button id="btn-classify">Classify</button>
+        <div id="class-result" class="result"></div>
+      </section>
+
+      <section id="summarizer">
+        <h2>Summarizer</h2>
+        <textarea id="sum-text" rows="4" placeholder="Paste a longer message to summarize"></textarea>
+        <button id="btn-summarize">Summarize</button>
+        <div id="sum-result" class="result"></div>
+      </section>
+
+      <section id="compressor">
+        <h2>Image Compressor</h2>
+        <input type="file" id="img-file" accept="image/*" />
+        <button id="btn-compress">Compress & Preview</button>
+        <div id="img-result" class="result"></div>
+      </section>
+
+      <footer>
+        <small>Backend powered by Python modules; simple demo UI served by Flask.</small>
+      </footer>
+    </div>
+
+    <script src="main.js"></script>
+  </body>
+</html>

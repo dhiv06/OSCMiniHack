@@ -1,5 +1,5 @@
 # classifier.py
-# Small rule-based classifier for short emergency-style messages.
+# Small rule-based classifier for short, emergency-style messages.
 import re
 from typing import List, Tuple
 
@@ -7,12 +7,12 @@ from typing import List, Tuple
 # These are literal substring matches against the incoming text (lowercased).
 SOS_KEYWORDS = {
     "sos", "mayday", "help me", "help!", "evacuate", "trapped",
-    "under rubble", "bleeding", "unconscious", "not breathing", "no pulse"
+    "under rubble", "bleeding", "unconscious", "not breathing", "no pulse", "blood", "explosion", 
 }
 
 URGENT_KEYWORDS = {
     "fire", "injury", "injured", "flood", "collapse", "gas leak",
-    "smoke", "power out", "danger", "stuck", "medical"
+    "smoke", "power out", "danger", "stuck", "medical", "dangerous"
 }
 
 
