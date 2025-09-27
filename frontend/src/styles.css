@@ -1,118 +1,38 @@
-/* frontend/src/styles.css */
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background-color: #282c34;
-    color: white;
+.chat-container, .summarizer-container, .mesh-container, .ar-container, .compressor-container {
+  margin: 20px;
+  padding: 20px;
+  border: 2px solid #ccc;
+  border-radius: 10px;
 }
 
-.dashboard-container {
-    padding: 20px;
+.chat-box, .summary-box, .radar, .image-preview {
+  margin-top: 10px;
+  padding: 10px;
+  background: #f9f9f9;
 }
 
-/* --- Header & Status --- */
-
-.header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 2px solid #444;
-    padding-bottom: 10px;
-    margin-bottom: 20px;
+.message {
+  margin: 5px 0;
 }
 
-.status {
-    padding: 8px 15px;
-    border-radius: 5px;
-    font-weight: bold;
+.urgent {
+  color: red;
+  font-weight: bold;
 }
 
-.status.online {
-    background-color: #387c38; /* Dark Green */
+.sos-button {
+  background-color: crimson;
+  color: white;
+  margin-left: 10px;
 }
 
-.status.offline {
-    background-color: #a04040; /* Dark Red */
-}
-
-/* --- Main Content Layout --- */
-
-.main-content {
-    display: grid;
-    grid-template-columns: 2fr 1fr; /* Visualization is wider than feed */
-    gap: 20px;
-    height: 80vh;
-}
-
-.network-panel, .feed-panel {
-    background-color: #363a43;
-    padding: 15px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    overflow-y: auto; /* Scrollable feed */
-}
-
-/* --- Mesh Visualization --- */
-
-.mesh-graph {
-    width: 100%;
-    height: 100%;
-}
-
-/* --- Message Feed --- */
-
-.message-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.message-item {
-    padding: 10px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-    border-left: 5px solid;
-}
-
-/* Priority Colors (Matches Python AI colors) */
-.message-item.red {
-    background-color: #4a2f2f;
-    border-color: red;
-}
-
-.message-item.yellow {
-    background-color: #4a4a2f;
-    border-color: yellow;
-}
-
-.message-item.green {
-    background-color: #2f4a2f;
-    border-color: green;
-}
-
-.message-item.gray {
-    background-color: #444;
-    border-color: gray;
-}
-
-.message-header {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.8em;
-    margin-bottom: 5px;
-    opacity: 0.7;
-}
-
-.priority-tag {
-    padding: 2px 5px;
-    border-radius: 3px;
-    font-weight: bold;
-    color: #111;
-    font-size: 1.1em;
-}
-
-.summary {
-    font-size: 0.9em;
-    margin: 0;
+.orb {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 255, 0, 0.6);
+  border-radius: 50%;
+  text-align: center;
+  line-height: 40px;
+  margin: 5px;
 }
