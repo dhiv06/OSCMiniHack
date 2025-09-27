@@ -16,6 +16,14 @@ body {
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(6px);
 }
+.section-row {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 18px;
+}
+@media(max-width:900px) {
+  .section-row { grid-template-columns: 1fr; }
+}
 
 h1 {
   text-align: center;
@@ -59,10 +67,9 @@ button {
   font-weight: bold;
   cursor: pointer;
   transition: background 0.3s ease;
-  font-size: 1em; /* Ensures consistent text size */
-  line-height: 1.2; /* Prevents emoji from stretching height */
-  vertical-align: middle; /* Aligns emoji with text baseline */
-
+  font-size: 1em; 
+  line-height: 1.2; 
+  vertical-align: middle; 
 }
 
 button:hover {
@@ -77,6 +84,57 @@ button:hover {
   border-radius: 6px;
   color: #333;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
+}
+
+.result {
+  margin-top:8px;
+  padding:12px;
+  border-radius:8px;
+  background:rgba(255,255,255,0.01);
+  border:1px solid rgba(255,255,255,0.02)
+}
+
+:root {
+  --bg: #071228;
+  --card: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+  --accent: linear-gradient(45deg,#7c3aed,#06b6d4);
+  --muted: #9fb0c8;
+}
+
+body {
+  margin:0;
+  background:linear-gradient(180deg,#041226,#071227);
+  font-family:Inter,system-ui,Segoe UI,Roboto,Arial;
+  color:var(--muted);
+  -webkit-font-smoothing:antialiased
+}
+
+.container {
+  max-width:980px;
+  margin:28px auto;
+  padding:20px;
+  border-radius:12px;
+  background:var(--card);
+  box-shadow:0 10px 40px rgba(2,6,23,0.6);
+  border:1px solid rgba(255,255,255,0.02)
+}
+
+textarea {
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.03);
+  background:rgba(255,255,255,0.02);
+  color:var(--muted)
+}
+
+button {
+  padding:10px 14px;
+  border-radius:10px;
+  border:none;
+  background:var(--accent);
+  color:white;
+  cursor:pointer
 }
 
 footer {
@@ -109,3 +167,89 @@ footer {
   background: #ff69b4;
   color: white;
 }
+
+/* ===================== */
+/* COLORBLIND MODE OVERRIDES */
+/* ===================== */
+.colorblind {
+  --accent: linear-gradient(45deg,#ff9900,#0066cc); /* orange + blue */
+  --muted: #222; /* darker text for contrast */
+}
+
+.colorblind h1,
+.colorblind h2 {
+  color: #ff9900 !important; /* high contrast headings */
+}
+
+.colorblind button {
+  background: #0066cc;
+  font-size: 1.2em; /* larger for accessibility */
+}
+
+.colorblind button:hover {
+  background: #ff9900;
+}
+
+.colorblind textarea {
+  background: #fff;
+  color: #000;
+}
+
+.colorblind .emoji-box span:hover {
+  background: #0066cc;
+  color: white;
+}
+
+/* Example overrides for mesh graph */
+.node { fill: #7c3aed; }
+.link { stroke: #9fb0c8; stroke-width: 2; }
+
+.colorblind .node { fill: #ff9900; }
+.colorblind .link { stroke: #0066cc; }
+
+
+/* ===================== */
+/* COLORBLIND MODE */
+/* ===================== */
+body.colorblind-mode {
+  background: #fdfdfd !important;
+  color: #1a1a1a !important;
+}
+
+/* Panels */
+body.colorblind-mode .container,
+body.colorblind-mode section {
+  background: #f3f3f3 !important;
+  border: 2px solid #333 !important;
+}
+
+/* Headings */
+body.colorblind-mode h1,
+body.colorblind-mode h2 {
+  color: #1f77b4 !important; /* blue */
+}
+
+/* Buttons */
+body.colorblind-mode button,
+body.colorblind-mode #colorblind-toggle {
+  background: #1f77b4 !important; /* blue */
+  color: #fff !important;
+}
+body.colorblind-mode button:hover,
+body.colorblind-mode #colorblind-toggle:hover {
+  background: #ff7f0e !important; /* orange */
+  color: #fff !important;
+}
+
+/* Result boxes */
+body.colorblind-mode .result {
+  background: #e6e6e6 !important;
+  border: 1px solid #999 !important;
+  color: #1a1a1a !important;
+}
+
+/* Graph elements */
+body.colorblind-mode .node { fill: #ff9900 !important; }  /* orange */
+body.colorblind-mode .link { stroke: #0066cc !important; stroke-width: 2; } /* blue */
+
+

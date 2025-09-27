@@ -11,9 +11,18 @@
     <div class="container">
       <h1>Offline-ready Comm Demo</h1>
 
-      <!-- 🧠 Classifier Section -->
+
+      <div class="colorblind-toggle">
+  <button id="btn-colorblind">👓 Colorblind mode</button>
+</div>
+
+
+
+    
+
+      <!-- Classifier Section -->
       <section id="classifier">
-        <h2>Classifier 🕵️‍♀️</h2>
+        <h2>🎭 Classifier 🎭</h2>
         <textarea id="class-text" rows="3" placeholder="Type a short message (e.g. 'help trapped')"></textarea>
 
         <div class="emoji-controls">
@@ -33,7 +42,7 @@
 
       <!-- 📄 Summarizer Section -->
       <section id="summarizer">
-        <h2>Summarize 📄</h2>
+        <h2>🪆 Summarize 🪆</h2>
         <textarea id="sum-text" rows="4" placeholder="Paste a longer message to summarize"></textarea>
 
         <div class="emoji-controls">
@@ -53,7 +62,7 @@
 
       <!-- 🖼️ Image Compressor Section -->
       <section id="compressor">
-        <h2>Image Compressor</h2>
+        <h2>🐢 Image Compressor 🐢</h2>
         <input type="file" id="img-file" accept="image/*" />
         <button id="btn-compress">Compress & Preview</button>
         <div id="img-result" class="result"></div>

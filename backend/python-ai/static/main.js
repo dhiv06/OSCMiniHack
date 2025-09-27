@@ -98,3 +98,15 @@ document.getElementById('btn-compress').addEventListener('click', async () => {
   }
   document.activeElement.blur();
 });
+
+
+// 👓 Colorblind Mode toggle
+document.addEventListener("DOMContentLoaded", () => {
+  const colorblindBtn = document.getElementById("btn-colorblind");
+  if (colorblindBtn) {
+    colorblindBtn.addEventListener("click", () => {
+      document.body.classList.toggle("colorblind-mode");
+    });
+  }
+});
+

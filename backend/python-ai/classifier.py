@@ -9,12 +9,12 @@ from typing import List, Tuple
 # substring matches (the incoming message is lowercased before matching).
 # Expand or tweak these sets to tune sensitivity.
 SOS_KEYWORDS = {
-    "sos", "mayday", "help me", "help!", "evacuate", "trapped",
+    "sos", "mayday", "help me", "help!", "evacuate", "trapped", "🆘",
     "under rubble", "bleeding", "unconscious", "not breathing", "no pulse", "blood", "explosion",
 }
 
 URGENT_KEYWORDS = {
-    "fire", "injury", "injured", "flood", "collapse", "gas leak",
+    "fire", "injury", "injured", "flood", "collapse", "gas leak", "🚨",
     "smoke", "power out", "danger", "stuck", "medical", "dangerous"
 }
 

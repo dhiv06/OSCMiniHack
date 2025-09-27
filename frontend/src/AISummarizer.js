@@ -17,7 +17,7 @@ function AISummarizer() {
 
   return (
     <div className="summarizer-container">
-      <h2>AI Text Summarizer</h2>
+      <h2>Text Summarizer</h2>
       <textarea
         rows="6"
         value={text}
