@@ -6,24 +6,52 @@
     <title>OSCMiniHack Demo</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
+
   <body>
     <div class="container">
       <h1>Offline-ready Comm Demo</h1>
 
+      <!-- 🧠 Classifier Section -->
       <section id="classifier">
-        <h2>Classifier</h2>
+        <h2>Classifier 🧠</h2>
         <textarea id="class-text" rows="3" placeholder="Type a short message (e.g. 'help trapped')"></textarea>
-        <button id="btn-classify">Classify</button>
+
+        <div class="emoji-controls">
+          <button onclick="toggleEmojiPicker('emoji-picker-class')">😀</button>
+          <button id="btn-classify">Classify</button>
+        </div>
+        <div id="emoji-picker-class" class="emoji-box" style="display:none;">
+          <span onclick="insertEmoji('🆘', 'class-text')">🆘</span>
+          <span onclick="insertEmoji('🚨', 'class-text')">🚨</span>
+          <span onclick="insertEmoji('📡', 'class-text')">📡</span>
+          <span onclick="insertEmoji('✅', 'class-text')">✅</span>
+          <span onclick="insertEmoji('📍', 'class-text')">📍</span>
+        </div>
+
         <div id="class-result" class="result"></div>
       </section>
 
+      <!-- 📄 Summarizer Section -->
       <section id="summarizer">
-        <h2>Summarizer</h2>
+        <h2>Summarize 📄</h2>
         <textarea id="sum-text" rows="4" placeholder="Paste a longer message to summarize"></textarea>
-        <button id="btn-summarize">Summarize</button>
+
+        <div class="emoji-controls">
+          <button onclick="toggleEmojiPicker('emoji-picker-sum')">😀</button>
+          <button id="btn-summarize">Summarize</button>
+        </div>
+        <div id="emoji-picker-sum" class="emoji-box" style="display:none;">
+          <span onclick="insertEmoji('📝', 'sum-text')">📝</span>
+          <span onclick="insertEmoji('📄', 'sum-text')">📄</span>
+          <span onclick="insertEmoji('🔍', 'sum-text')">🔍</span>
+          <span onclick="insertEmoji('📚', 'sum-text')">📚</span>
+          <span onclick="insertEmoji('✂️', 'sum-text')">✂️</span>
+        </div>
+
         <div id="sum-result" class="result"></div>
       </section>
 
+      <!-- 🖼️ Image Compressor Section -->
       <section id="compressor">
         <h2>Image Compressor</h2>
         <input type="file" id="img-file" accept="image/*" />
