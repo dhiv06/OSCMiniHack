@@ -7,8 +7,20 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>offline</h1>
+  <!-- 🌐 Navigation Bar -->
+  <nav class="navbar">
+    <ul>
+      <li><a href="#home">🏠 Home</a></li>
+      <li><a href="#send">✉️ Send Message</a></li>
+      <li><a href="#text-tools">🎭 Text Tools</a></li>
+      <li><a href="#compressor">🐢 Image Compressor</a></li>
+    </ul>
+  </nav>
+
+  <!-- 🏠 Home Section -->
+  <section id="home" class="container">
+    <!--<h1>offline</h1>-->
+    <h1 class="animated-title">offline</h1>
 
     <!-- 🧪 Demo Mode -->
     <div class="demo-toggle">
@@ -19,16 +31,23 @@
     </div>
 
     <!-- 👓 Colorblind Mode -->
-  
     <div class="colorblind-toggle">
       <button id="btn-colorblind">👓 Colorblind mode</button>
     </div>
+  </section>
 
-    <div>
-      <button class="send-button" onclick="sendMessage(document.getElementById('your-textarea-id').value)">Send</button>
+  <!-- ✉️ Send Message Section -->
+  <section id="send" class="container">
+    <h2>✉️ Send Message ✉️</h2>
+    <textarea id="your-textarea-id" rows="3" placeholder="Type your message here"></textarea>
+    <div class="send-button">
+      <button onclick="sendMessage(document.getElementById('your-textarea-id').value)">Send</button>
     </div>
+    <div id="send-result" class="result"></div>
+  </section>
 
-
+  <!-- 🎭 Classifier + Summarizer Section -->
+  <section id="text-tools" class="container">
     <!-- 🎭 Classifier -->
     <section id="classifier">
       <h2>🎭 Classifier 🎭</h2>
@@ -68,104 +87,23 @@
       </div>
       <div id="sum-result" class="result"><span id="sum-output"></span></div>
     </section>
+  </section>
 
-    <!-- 🖼️ Image Compressor -->
-    <section id="compressor">
-      <h2>🐢 Image Compressor 🐢</h2>
-      <div class="compress-controls">
-        <input type="file" id="img-file" accept="image/*" />
-        <button id="btn-compress">Compress & Preview</button>
-      </div>
-      <div id="img-result" class="result"></div>
-    </section>
+  <!-- 🖼️ Image Compressor Section -->
+  <section id="compressor" class="container">
+    <h2>🐢 Image Compressor 🐢</h2>
+    <div class="compress-controls">
+      <input type="file" id="img-file" accept="image/*" />
+      <button id="btn-compress">Compress & Preview</button>
+    </div>
+    <div id="img-result" class="result"></div>
+  </section>
 
+  <!-- 📎 Footer -->
+  <footer>
+    <small>Backend powered by Python modules; simple demo UI served by Flask.</small>
+  </footer>
 
-    <footer>
-      <small>Backend powered by Python modules; simple demo UI served by Flask.</small>
-    </footer>
-  </div>
   <script src="main.js"></script>
 </body>
 </html>
-
-
-
-<!--
-<!doctype html>
-<html lang="en">
-
-  <div class="demo-toggle">
-  <label>
-    <input type="checkbox" id="demo-mode" onchange="toggleDemoMode()" />
-    Demo Mode 🧪
-  </label>
-
-</div>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>OSCMiniHack Demo</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-
-  <body>
-    <div class="container">
-      <h1>offline</h1>
-
-      <!- 🧠 Classifier Section --
-      <section id="classifier">
-        <h2>Classifier 🕵️‍♀️</h2>
-        <textarea id="class-text" rows="3" placeholder="Type a short message (e.g. 'help trapped')"></textarea>
-
-        <div class="emoji-controls">
-          <button onclick="toggleEmojiPicker('emoji-picker-class')">😀</button>
-          <button id="btn-classify">Classify</button>
-        </div>
-        <div id="emoji-picker-class" class="emoji-box" style="display:none;">
-          <span onclick="insertEmoji('🆘', 'class-text', 'emoji-picker-class', event)">🆘</span>          
-          <span onclick="insertEmoji('🚨', 'class-text', 'emoji-picker-class', even)">🚨</span>
-          <span onclick="insertEmoji('📡', 'class-text', 'emoji-picker-class', even)">📡</span>
-          <span onclick="insertEmoji('✅', 'class-text', 'emoji-picker-class', even)">✅</span>
-          <span onclick="insertEmoji('📍', 'class-text', 'emoji-picker-class', even)">📍</span>
-        </div>
-
-        <div id="class-result" class="result"></div>
-      </section>
-
-      <!- 📄 Summarizer Section --
-      <section id="summarizer">
-        <h2>Summarize 📄</h2>
-        <textarea id="sum-text" rows="4" placeholder="Paste a longer message to summarize"></textarea>
-
-        <div class="emoji-controls">
-          <button onclick="toggleEmojiPicker('emoji-picker-sum')">😀</button>
-          <button id="btn-summarize">Summarize</button>
-        </div>
-        <div id="emoji-picker-sum" class="emoji-box" style="display:none;">
-          <span onclick="insertEmoji('📝', 'sum-text')">📝</span>
-          <span onclick="insertEmoji('📄', 'sum-text')">📄</span>
-          <span onclick="insertEmoji('🔍', 'sum-text')">🔍</span>
-          <span onclick="insertEmoji('📚', 'sum-text')">📚</span>
-          <span onclick="insertEmoji('✂️', 'sum-text')">✂️</span>
-        </div>
-
-        <div id="sum-result" class="result"></div>
-      </section>
-
-      <!- 🖼️ Image Compressor Section --
-      <section id="compressor">
-        <h2>Image Compressor</h2>
-        <input type="file" id="img-file" accept="image/*" />
-        <button id="btn-compress">Compress & Preview</button>
-        <div id="img-result" class="result"></div>
-      </section>
-
-      <footer>
-        <small>Backend powered by Python modules; simple demo UI served by Flask.</small>
-      </footer>
-    </div>
-
-    <script src="main.js"></script>
-  </body>
-</html>
--->
