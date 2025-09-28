@@ -1,5 +1,5 @@
 # ----- start_all.ps1 -----
-Write-Host "🚀 Starting TerraLink-X full stack..."
+Write-Host "🚀 Starting FeeLink full stack..."
 
 # 1. Build and run the C++ mesh backend
 Write-Host "[1/3] Building C++ mesh backend..."
@@ -7,7 +7,7 @@ cmake -S backend/cpp-mesh -B backend/cpp-mesh/build -DCMAKE_BUILD_TYPE=Debug
 cmake --build backend/cpp-mesh/build --config Debug
 
 Write-Host "[1/3] Running C++ mesh backend..."
-Start-Process -NoNewWindow -FilePath ".\backend\cpp-mesh\build\Debug\terralink-x.exe"
+Start-Process -NoNewWindow -FilePath ".\backend\cpp-mesh\build\Debug\feelink.exe"
 
 # 2. Start Python AI backend (Flask/FastAPI)
 Write-Host "[2/3] Starting Python AI backend..."

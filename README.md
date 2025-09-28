@@ -1,8 +1,14 @@
 
 
-# 🚀 TerraLink-X: AI-Enhanced P2P Emergency Communication System
+# 🚀 FeeLink: Emotion-Aware P2P Communication System
 
-**TerraLink-X** is a cutting-edge peer-to-peer messaging platform that combines real-time emotion analysis, intelligent tone transformation, and personalized wellness coaching. Built for emergency scenarios where traditional communication infrastructure may be compromised.
+**F# 4. Run FeeLink (choose one option)
+
+# Option 1: Simple & Reliable (Recommended)
+python3 start_simple.py
+
+# Option 2: Full Featured (with dependency checking)
+python3 start_feelink.pyLink** is a peer-to-peer messaging platform that combines real-time emotion detection and personalized wellness recommendations. Built for emergency scenarios where traditional communication infrastructure may be compromised.
 
 ## ✨ Key Features
 
@@ -16,7 +22,7 @@
 
 ## 🎯 The Innovation
 
-TerraLink-X combines P2P messaging with emotion-aware wellness recommendations using simple but effective rule-based classification and TF-IDF summarization.
+FeeLink combines P2P messaging with emotion-aware wellness recommendations using simple but effective rule-based classification and TF-IDF summarization.
 
 ---
 
@@ -33,8 +39,8 @@ TerraLink-X combines P2P messaging with emotion-aware wellness recommendations u
 
 ```powershell
 # 1. Clone the repository
-git clone https://github.com/your-username/terralink-x.git
-cd terralink-x
+git clone https://github.com/your-username/feelink.git
+cd feelink
 
 # 2. Create Python virtual environment
 python -m venv venv
@@ -43,16 +49,24 @@ python -m venv venv
 # 3. Install Python dependencies
 pip install flask opencv-python scikit-learn flask-cors
 
-# 4. Run the application
-python backend\python-ai\app.py
+# 4. Run FeeLink (choose one option)
+
+# Option 1: Simple & Reliable (Recommended)
+python start_simple.py
+
+# Option 2: Full Featured (with dependency checking)
+python start_feelink.py
+
+# Option 3: Double-click for Windows users
+# Just double-click: start_feelink.bat
 ```
 
 ### Linux/macOS Setup
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/terralink-x.git
-cd terralink-x
+git clone https://github.com/your-username/feelink.git
+cd feelink
 
 # 2. Create Python virtual environment
 python3 -m venv venv
@@ -61,8 +75,13 @@ source venv/bin/activate
 # 3. Install Python dependencies
 pip install flask opencv-python scikit-learn flask-cors
 
-# 4. Run the application
-python backend/python-ai/app.py
+# 4. Run FeeLink (choose one option)
+
+# Option 1: Simple & Reliable (Recommended)
+python3 start_simple.py
+
+# Option 2: Full Featured (with dependency checking)
+python3 start_feelink.py
 ```
 
 ### 🌐 Access the Application
@@ -74,9 +93,55 @@ python backend/python-ai/app.py
 
 ---
 
+## 🚀 Startup Scripts
+
+FeeLink provides multiple startup options for maximum convenience:
+
+### ⚡ **start_simple.py** (Recommended)
+The most reliable way to start FeeLink - just works every time!
+
+```bash
+python start_simple.py
+```
+
+**Features:**
+- ✅ No dependency checking - just starts the backend
+- ✅ Works on all operating systems  
+- ✅ Serves frontend at http://localhost:5000
+- ✅ Perfect for development and demos
+
+### 🎯 **start_feelink.py** (Full Featured)
+Advanced startup with smart dependency detection:
+
+```bash
+python start_feelink.py
+```
+
+**Features:**
+- 🔍 Checks Python and Node.js dependencies
+- 🐍 Starts Flask backend (always)
+- ⚛️ Starts frontend dev server (if Node.js available)
+- 📊 Provides detailed startup status
+- 🌐 Multiple access URLs
+
+### 🖱️ **start_feelink.bat** (Windows Double-Click)
+For Windows users who prefer GUI interaction:
+
+- **Just double-click** the `start_feelink.bat` file
+- Opens a terminal window with startup progress
+- Uses the simple script internally for reliability
+
+### 📋 **Platform-Specific Scripts**
+Traditional PowerShell/Bash scripts for advanced users:
+
+- **Windows:** `.\scripts\start_all.ps1`
+- **Linux/Mac:** `./scripts/start_all.sh`
+
+---
+
 ## 🏗️ Architecture Overview
 
-TerraLink-X uses a hybrid architecture combining a lightweight Flask backend for AI processing with client-side P2P communication.
+FeeLink uses a hybrid architecture combining a lightweight Flask backend for emotion processing with client-side P2P communication.
 
 ```
 ┌─────────────────┐    ┌──────────────────┐    ┌─────────────────┐
@@ -322,7 +387,7 @@ class AIChat {
 ## 📁 Project Structure
 
 ```
-terralink-x/
+feelink/
 ├── backend/
 │   ├── python-ai/           # Main Flask application
 │   │   ├── app.py           # Flask server with API endpoints
@@ -520,10 +585,10 @@ pkill -f python             # Linux/Mac
 
 For questions, issues, or collaboration opportunities:
 
-- **GitHub Issues:** [Create an issue](https://github.com/your-username/terralink-x/issues)
+- **GitHub Issues:** [Create an issue](https://github.com/your-username/feelink/issues)
 - **Email:** your-email@domain.com
 - **Discord:** YourDiscord#1234
 
 ---
 
-**TerraLink-X: Where Emergency Communication Meets Emotional Intelligence** 🚀✨
+**FeeLink: Where Emergency Communication Meets Emotional Intelligence** 🚀✨

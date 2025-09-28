@@ -25,9 +25,9 @@ function App() {
     <div className="app-shell root">
       <div className="header">
         <div className="brand">
-          <div className="logo">TL</div>
+          <div className="logo">FL</div>
           <div>
-            <h1>TerraLink X</h1>
+            <h1>FeeLink</h1>
             <p>Resilient comms demo</p>
           </div>
         </div>

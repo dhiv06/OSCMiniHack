@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.14)
-project(terralink-x)
+project(feelink)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -22,15 +22,15 @@ set(SOURCES
     src/Utils.cpp
 )
 
-add_executable(terralink-x ${SOURCES})
+add_executable(feelink ${SOURCES})
 
 # Dependencies
 find_package(asio CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
 
-target_link_libraries(terralink-x PRIVATE asio nlohmann_json::nlohmann_json)
+target_link_libraries(feelink PRIVATE asio nlohmann_json::nlohmann_json)
 
 # Windows needs ws2_32 for sockets (MSVC)
 if (WIN32)
-    target_link_libraries(terralink-x PRIVATE ws2_32)
+    target_link_libraries(feelink PRIVATE ws2_32)
 endif()
