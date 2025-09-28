@@ -40,6 +40,9 @@ try:
     from classifier import classify_text
     from summarizer import ExtractiveSummarizer, split_sentences
     from compressor import compress_image
+    from tone_rewriter import get_rewrite_suggestions, rewrite_tone
+    from analytics import analytics
+    from mood_advisor import get_mood_advice, format_advice_for_display
 except Exception as e:
     # Import error will be raised at runtime if modules are missing; keep app importable for tests
     raise
@@ -91,10 +94,25 @@ def api_classify():
     if not data or 'text' not in data:
         return jsonify({'error': 'missing text'}), 400
 
+    text = data['text']
+    user_id = data.get('user_id', 'anonymous')
+    
     # classify_text is a small, deterministic substring matcher (see
     # classifier.py). It returns (label, score, matched_keywords).
-    label, score, matched = classify_text(data['text'])
-    return jsonify({'label': label, 'score': score, 'matched': matched})
+    label, score, matched = classify_text(text)
+    
+    # Log emotion for analytics
+    analytics.log_emotion(user_id, label, score, len(text))
+    
+    # Get tone rewrite suggestions for negative emotions
+    suggestions = get_rewrite_suggestions(text, label)
+    
+    return jsonify({
+        'label': label, 
+        'score': score, 
+        'matched': matched,
+        'rewrite_suggestions': suggestions
+    })
 
 
 @app.route('/api/compress', methods=['POST'])
@@ -119,6 +137,65 @@ def api_compress():
         return jsonify({'error': 'compression failed', 'detail': str(e)}), 500
 
     return Response(out, content_type='image/jpeg')
+
+
+@app.route('/api/rewrite', methods=['POST'])
+def api_rewrite():
+    """Rewrite a message with a different tone."""
+    data = request.get_json(force=True, silent=True)
+    if not data or 'text' not in data or 'tone' not in data:
+        return jsonify({'error': 'missing text or tone'}), 400
+    
+    original_text = data['text']
+    target_tone = data['tone']
+    
+    if target_tone not in ['supportive', 'professional', 'neutral']:
+        return jsonify({'error': 'invalid tone. Use: supportive, professional, neutral'}), 400
+    
+    rewritten = rewrite_tone(original_text, target_tone)
+    
+    return jsonify({
+        'original': original_text,
+        'rewritten': rewritten,
+        'tone': target_tone
+    })
+
+
+@app.route('/api/analytics', methods=['GET'])
+def api_analytics():
+    """Get emotion analytics for a user."""
+    user_id = request.args.get('user_id', 'anonymous')
+    days = int(request.args.get('days', 7))
+    
+    trends = analytics.get_emotion_trends(user_id, days)
+    return jsonify(trends)
+
+
+@app.route('/api/mood-advice', methods=['POST'])
+def api_mood_advice():
+    """Get personalized mood improvement advice."""
+    data = request.get_json(force=True, silent=True)
+    if not data or 'emotion' not in data:
+        return jsonify({'error': 'missing emotion'}), 400
+    
+    emotion = data['emotion']
+    confidence = data.get('confidence', 0.5)
+    user_id = data.get('user_id', 'anonymous')
+    
+    # Get recent patterns for context
+    trends = analytics.get_emotion_trends(user_id, 1)  # Last day
+    patterns = trends.get('emotion_breakdown', {})
+    
+    # Generate advice
+    advice = get_mood_advice(emotion, confidence, patterns)
+    formatted_advice = format_advice_for_display(advice, emotion)
+    
+    return jsonify({
+        'emotion': emotion,
+        'advice': advice,
+        'formatted_advice': formatted_advice,
+        'patterns': patterns
+    })
 
 
 # Add permissive CORS headers in development to make it easy for the Vite frontend to call
