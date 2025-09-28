@@ -293,9 +293,35 @@
             flex: 1;
         }
 
+        .message-image {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .message-image:hover {
+            transform: scale(1.05);
+        }
+
+        .image-info {
+            font-size: 11px;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
         @media (max-width: 768px) {
             .container {
                 grid-template-columns: 1fr;
+            }
+            
+            .message-image {
+                max-width: 150px;
+                max-height: 150px;
             }
         }
     </style>
@@ -642,11 +668,23 @@
                     return;
                 }
 
-                // Create message data with SUMMARIZED version
+                // Prepare image data if available
+                let imageData = null;
+                if (this.currentImage) {
+                    // Convert compressed image to base64 for P2P transmission
+                    const reader = new FileReader();
+                    imageData = await new Promise((resolve) => {
+                        reader.onload = (e) => resolve(e.target.result);
+                        reader.readAsDataURL(this.currentImage);
+                    });
+                }
+
+                // Create message data with SUMMARIZED version and compressed image
                 const messageData = {
                     text: this.currentAnalysis.summary,  // Send the summary, not original
                     classification: this.currentAnalysis.classification,
                     hasImage: !!this.currentImage,
+                    imageData: imageData,  // Include the actual compressed image data
                     timestamp: new Date().toLocaleTimeString(),
                     isFromAI: true  // Mark as AI-processed
                 };
@@ -685,13 +723,25 @@
                     `;
                 } else {
                     // Enhanced message with AI analysis
+                    let imageHtml = '';
+                    if (data.hasImage && data.imageData) {
+                        imageHtml = `
+                            <div>
+                                <img src="${data.imageData}" class="message-image" alt="Compressed image" onclick="window.open(this.src, '_blank')">
+                                <div class="image-info">📷 Compressed image (click to view full size)</div>
+                            </div>
+                        `;
+                    } else if (data.hasImage) {
+                        imageHtml = '<div style="font-size:12px;opacity:0.7;">📷 Image processing...</div>';
+                    }
+
                     messageEl.innerHTML = `
                         <div class="message-meta">
                             ${data.timestamp} 
                             ${data.classification ? `<span class="ai-tag tag-${data.classification.label}">${data.classification.label}</span>` : ''}
                         </div>
                         <div>${data.text}</div>
-                        ${data.hasImage ? '<div style="font-size:12px;opacity:0.7;">📷 Image attached</div>' : ''}
+                        ${imageHtml}
                     `;
                 }
                 
