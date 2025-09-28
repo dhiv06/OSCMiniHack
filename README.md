@@ -6,9 +6,8 @@
 
 ## ✨ Key Features
 
-- 🧠 **Real-time Emotion Classification** - Detects emotions with 95%+ accuracy
-- 💬 **Intelligent Tone Transformation** - Converts negative messages into constructive alternatives
-- 🌱 **Comprehensive Mood Advisor** - 700+ evidence-based wellness recommendations
+- 🧠 **Rule-based Emotion Classification** - Keyword matching for emotion detection
+- 🌱 **Comprehensive Mood Advisor** - 700+ wellness recommendations across all emotions
 - 📊 **Real-time Analytics Dashboard** - Track communication patterns and emotional health
 - 🖼️ **Smart Image Compression** - OpenCV-powered optimization for faster P2P transfers
 - � **Message Summarization** - Condenses long messages while preserving meaning
@@ -17,7 +16,7 @@
 
 ## 🎯 The Innovation
 
-TerraLink-X transforms simple messaging into a **personal wellness coach** that measurably improves mental health and communication quality. Perfect for hackathons and real-world emergency communication scenarios.
+TerraLink-X combines P2P messaging with emotion-aware wellness recommendations using simple but effective rule-based classification and TF-IDF summarization.
 
 ---
 
@@ -98,128 +97,213 @@ TerraLink-X uses a hybrid architecture combining a lightweight Flask backend for
 
 ---
 
-## 🧠 How It Works: Deep Technical Dive
+## 🧠 How It Works: Technical Implementation
 
 ### 1. 🏷️ Emotion Classification System
 
-**Technology:** Rule-based keyword matching with confidence scoring
+**Technology:** Simple keyword dictionary matching
 
-**Process:**
-1. **Text Preprocessing:** Input text is converted to lowercase and tokenized
-2. **Keyword Scanning:** System scans for emotion-specific keywords and emojis
-3. **Confidence Calculation:** Score based on keyword density and matches
-4. **Priority Resolution:** If multiple emotions detected, priority: Angry > Sad > Scared > Happy
+**Implementation:**
+```python
+# From classifier.py
+def classify_text(text: str) -> Tuple[str, float, List[str]]:
+    """Classify text using keyword matching."""
+    text_lower = text.lower()
+    emotion_scores = {}
+    matched_keywords = []
+    
+    # Check each emotion dictionary
+    for emotion, keywords in EMOTION_KEYWORDS.items():
+        matches = [kw for kw in keywords if kw in text_lower]
+        if matches:
+            emotion_scores[emotion] = len(matches) / len(text.split())
+            matched_keywords.extend(matches)
+    
+    # Return highest scoring emotion
+    if emotion_scores:
+        best_emotion = max(emotion_scores, key=emotion_scores.get)
+        confidence = min(emotion_scores[best_emotion] * 2, 1.0)
+        return best_emotion, confidence, matched_keywords
+    
+    return 'normal', 0.5, []
+```
 
 **Keyword Database:**
 ```python
-HAPPY_KEYWORDS = {"happy", "joy", "excited", "great", "awesome", "😊", "😄", "🎉"}
-SAD_KEYWORDS = {"sad", "depressed", "crying", "tears", "😢", "😭", "💔"}
-ANGRY_KEYWORDS = {"angry", "mad", "furious", "rage", "hate", "😠", "😡", "🤬"}
-SCARED_KEYWORDS = {"scared", "afraid", "terrified", "worried", "😨", "😰", "😱"}
-```
-
-**Example Classification:**
-- Input: "I'm so frustrated and angry about this!"
-- Detected: ANGRY (confidence: 85%)
-- Keywords matched: ["frustrated", "angry"]
-
-### 2. 💬 Intelligent Tone Transformation
-
-**Technology:** Pattern-based text rewriting with context awareness
-
-**Transformation Engine:**
-```python
-TONE_PATTERNS = {
-    'supportive': {
-        r'\bi\'m done with this\b': "I think we should pause and revisit this later",
-        r'\bthis is stupid\b': "I'm having trouble understanding this approach",
-        r'\byou always\b': "I've noticed that sometimes"
-    },
-    'professional': {
-        r'\bi\'m done with this\b': "I believe we should reassess our current approach",
-        r'\bthis is stupid\b': "I have concerns about this strategy"
-    }
+EMOTION_KEYWORDS = {
+    'happy': {"happy", "joy", "excited", "great", "awesome", "😊", "😄", "🎉"},
+    'sad': {"sad", "depressed", "crying", "tears", "😢", "😭", "💔"},
+    'angry': {"angry", "mad", "furious", "rage", "hate", "😠", "😡", "🤬"},
+    'scared': {"scared", "afraid", "terrified", "worried", "😨", "😰", "😱"}
 }
 ```
 
-**Three Tone Options:**
-- **😊 Supportive:** Empathetic, caring language
-- **💼 Professional:** Formal, workplace-appropriate
-- **😐 Neutral:** Balanced, non-confrontational
+### 2. 📄 Message Summarization
 
-### 3. 🌱 Comprehensive Mood Advisor System
+**Technology:** TF-IDF based extractive summarization
 
-**The Crown Jewel Feature** - Provides personalized wellness recommendations based on detected emotions and patterns.
+**Implementation:**
+```python
+# From summarizer.py
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+class ExtractiveSummarizer:
+    def summarize(self, text: str, max_sentences: int = 2) -> str:
+        sentences = self._split_sentences(text)
+        if len(sentences) <= max_sentences:
+            return text
+            
+        # Calculate TF-IDF scores
+        vectorizer = TfidfVectorizer(stop_words='english')
+        tfidf_matrix = vectorizer.fit_transform(sentences)
+        
+        # Calculate sentence scores
+        sentence_scores = np.array(tfidf_matrix.sum(axis=1)).flatten()
+        
+        # Select top sentences
+        top_indices = sentence_scores.argsort()[-max_sentences:][::-1]
+        top_indices.sort()  # Maintain original order
+        
+        return ' '.join([sentences[i] for i in top_indices])
+```
+
+### 3. 🌱 Mood Advisor System
+
+**Implementation:** Static dictionary lookup with randomized selection
 
 **Database Structure:**
 ```python
+# From mood_advisor.py - 700+ tips across all emotions
 MOOD_ADVICE = {
     'angry': {
         'immediate': [
             "Take 5 deep breaths - inhale for 4, hold for 4, exhale for 6",
-            "Step away from the screen for 2 minutes and look out a window"
+            "Step away from the screen for 2 minutes and look out a window",
+            "Drink a full glass of cold water slowly",
+            "Do 10 jumping jacks or push-ups to release tension",
+            # ... 50+ more immediate tips
         ],
         'daily_habits': [
             "Get 7-8 hours of quality sleep - anger often stems from tiredness",
-            "Exercise for 20+ minutes to release built-up stress hormones"
+            "Stay hydrated - drink at least 8 glasses of water daily",
+            "Exercise for 20+ minutes to release built-up stress hormones",
+            # ... 40+ more daily habits
         ],
         'communication': [
             "Use 'I feel...' statements instead of 'You always...'",
-            "Take a 24-hour pause before responding to frustrating messages"
+            "Take a 24-hour pause before responding to frustrating messages",
+            # ... 30+ more communication tips
         ]
+    },
+    'sad': { /* 100+ tips */ },
+    'scared': { /* 100+ tips */ },
+    'happy': { /* 100+ tips */ },
+    'normal': { /* 100+ tips */ }
+}
+
+def get_mood_advice(emotion: str, confidence: float) -> Dict:
+    """Return 2-3 random tips from each category."""
+    advice = MOOD_ADVICE.get(emotion, MOOD_ADVICE['normal'])
+    return {
+        'immediate': random.sample(advice['immediate'], min(3, len(advice['immediate']))),
+        'habits': random.sample(advice['daily_habits'], min(2, len(advice['daily_habits']))),
+        'communication': random.sample(advice['communication'], min(2, len(advice['communication'])))
+    }
+```
+
+**Location of 700+ Tips:** All wellness recommendations are hardcoded in `backend/python-ai/mood_advisor.py` lines 8-140, organized by emotion type with immediate actions, daily habits, and communication strategies.
+
+### 4. 📊 Simple Analytics Tracking
+
+**In-Memory Storage:**
+```python
+# From analytics.py
+class EmotionAnalytics:
+    def __init__(self):
+        # Simple list storage: {user_id: [emotion_data, ...]}
+        self.emotion_data = defaultdict(list)
+    
+    def log_emotion(self, user_id: str, emotion: str, confidence: float):
+        """Store emotion data with timestamp."""
+        self.emotion_data[user_id].append({
+            'timestamp': datetime.now(),
+            'emotion': emotion,
+            'confidence': confidence
+        })
+    
+    def get_emotion_trends(self, user_id: str, days: int = 1):
+        """Calculate percentage breakdown of emotions."""
+        recent_data = [entry for entry in self.emotion_data[user_id] 
+                      if entry['timestamp'] > datetime.now() - timedelta(days=days)]
+        
+        emotions = [entry['emotion'] for entry in recent_data]
+        return {emotion: round((emotions.count(emotion) / len(emotions)) * 100, 1) 
+                for emotion in set(emotions)} if emotions else {}
+```
+
+### 5. 🖼️ Basic Image Compression
+
+**Technology:** OpenCV with fixed compression settings
+
+**Implementation:**
+```python
+# From compressor.py
+import cv2
+
+def compress_image(image_bytes, quality=70):
+    """Basic JPEG compression using OpenCV."""
+    # Convert bytes to numpy array
+    nparr = np.frombuffer(image_bytes, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+    
+    # Compress with fixed quality setting
+    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), quality]
+    result, compressed_img = cv2.imencode('.jpg', img, encode_param)
+    
+    return compressed_img.tobytes()
+```
+
+**Results:** Typically 60-80% size reduction with quality=70 setting
+
+### 6. 🔗 P2P Communication Architecture
+
+**Implementation:**
+```javascript
+// Frontend P2P connection using PeerJS
+class AIChat {
+    constructor() {
+        this.peer = new Peer(this.generateId());
+        this.connection = null;
+    }
+    
+    connect() {
+        const friendId = document.getElementById('friendId').value;
+        this.connection = this.peer.connect(friendId);
+        this.setupConnection(this.connection);
+    }
+    
+    async sendMessage() {
+        // Process message through Flask API first
+        const analysis = await this.analyzeMessage();
+        
+        // Send processed data via P2P
+        this.connection.send({
+            text: analysis.summary,
+            emotion: analysis.classification,
+            timestamp: new Date().toLocaleTimeString()
+        });
     }
 }
 ```
 
-**700+ Evidence-Based Tips across:**
-- **Immediate Actions:** Quick relief techniques (breathing, grounding, etc.)
-- **Daily Habits:** Long-term wellness strategies (sleep, exercise, nutrition)
-- **Communication:** Relationship improvement techniques
-- **Personal Insights:** Pattern-based behavioral recommendations
-
-### 4. 📊 Real-Time Analytics Engine
-
-**In-Memory Analytics System:**
-```python
-class EmotionAnalytics:
-    def __init__(self):
-        # Store: {user_id: [(timestamp, emotion, confidence, text_length), ...]}
-        self.emotion_data = defaultdict(list)
-```
-
-**Capabilities:**
-- **Emotion Distribution:** Percentage breakdown over time periods
-- **Pattern Detection:** Identifies concerning trends (e.g., 40%+ angry messages)
-- **Behavioral Insights:** Personalized recommendations based on patterns
-- **Real-time Updates:** Charts update immediately after each message
-
-### 5. 🖼️ Smart Image Compression
-
-**Technology:** OpenCV-powered optimization
-
-**Process:**
-1. **Image Analysis:** Detect format, size, and quality metrics
-2. **Adaptive Compression:** Choose optimal settings based on content
-3. **Quality Preservation:** Maintain visual fidelity while reducing size
-4. **P2P Optimization:** Convert to base64 for WebRTC transmission
-
-**Typical Results:** 60-80% size reduction with minimal quality loss
-
-### 6. 🔗 P2P Communication Architecture
-
-**Technology Stack:**
-- **PeerJS:** WebRTC abstraction for browser-to-browser communication
-- **No Central Server:** Messages never pass through backend servers
-- **Direct Transmission:** Encrypted peer-to-peer data channels
-- **Fallback Resilience:** Works even if backend AI services are unavailable
-
 **Message Flow:**
-1. User types message → AI processes → Enhanced message created
-2. Enhanced message sent directly to peer via WebRTC
-3. Peer receives: original summary + AI analysis + compressed images
-4. Both users' analytics updated locally
+1. User types message → Flask API processes → Classification + Summarization
+2. Processed message sent directly peer-to-peer via WebRTC
+3. Both users see summarized message + emotion tags
+4. Analytics updated in browser memory
 
-### 7. 🎨 Futuristic UI Implementation
+### 7. 🎨 UI Implementation
 
 **CSS Technologies:**
 - **Glass Morphism:** `backdrop-filter: blur(20px)` with translucent backgrounds
@@ -266,7 +350,7 @@ terralink-x/
 | Endpoint | Method | Purpose | Input | Output |
 |----------|--------|---------|-------|--------|
 | `/api/classify` | POST | Emotion classification | `{text, user_id}` | `{label, score, matched, rewrite_suggestions}` |
-| `/api/rewrite` | POST | Tone transformation | `{text, tone}` | `{rewritten}` |
+
 | `/api/summarize` | POST | Message summarization | `{text}` | `{summary, sentences}` |
 | `/api/compress` | POST | Image compression | `FormData(image)` | `Compressed image blob` |
 | `/api/mood-advice` | POST | Wellness recommendations | `{emotion, confidence, user_id}` | `{advice: {immediate, habits, insights}}` |
@@ -361,35 +445,7 @@ PORT=5000
 HOST=0.0.0.0
 ```
 
----
 
-## 🎯 Hackathon Presentation Tips
-
-### Key Selling Points
-
-1. **"Measurable Impact on Human Quality of Life"**
-   - 700+ evidence-based wellness recommendations
-   - Real-time emotional health monitoring
-   - Proven psychological techniques for mood improvement
-
-2. **"Emergency Communication Ready"**
-   - P2P architecture works without internet infrastructure
-   - Local AI processing (no cloud dependencies)
-   - Optimized for low-bandwidth scenarios
-
-3. **"Cutting-Edge Technology Stack"**
-   - Advanced emotion AI with 95%+ accuracy
-   - Real-time tone transformation
-   - Futuristic UI with glass morphism design
-
-### Demo Script
-
-1. **Open TerraLink-X** → Show futuristic UI
-2. **Type angry message** → Demonstrate emotion detection
-3. **Show tone transformation** → Highlight AI improvement suggestions
-4. **Display mood advice** → Show comprehensive wellness recommendations
-5. **Connect P2P** → Demonstrate direct messaging
-6. **Show analytics** → Display emotional patterns and insights
 
 ---
 
@@ -419,15 +475,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-## 🏆 Awards and Recognition
+## 🏆 Project Goals
 
-Built for hackathons and emergency communication scenarios. Features measurable impact on human quality of life through AI-powered wellness coaching.
-
-**Perfect for:**
-- Emergency preparedness hackathons
-- Mental health technology competitions
-- P2P communication challenges
-- AI/ML innovation contests
+Built for emergency communication scenarios with simple but effective emotion-aware messaging and wellness recommendations.
 
 ---
 
@@ -452,7 +502,7 @@ pkill -f python             # Linux/Mac
 - Ensure both users are on same network or use STUN servers
 - Try refreshing both browser tabs
 
-**"AI classification not working"**
+**"Emotion classification not working"**
 - Verify all Python dependencies installed
 - Check Flask logs for import errors
 - Test classifier independently: `python -c "from classifier import classify_text; print(classify_text('test'))"`
@@ -460,7 +510,7 @@ pkill -f python             # Linux/Mac
 ### Performance Optimization
 
 - **Memory Usage:** Analytics system keeps last 1000 entries per user
-- **CPU Usage:** Classification is lightweight (rule-based, not ML)
+- **CPU Usage:** Classification is lightweight (simple keyword matching)
 - **Network:** Images compressed 60-80% for faster P2P transfer
 - **Browser:** Tested on Chrome, Firefox, Safari, Edge
 
