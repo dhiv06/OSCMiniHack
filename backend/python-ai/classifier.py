@@ -5,33 +5,46 @@
 import re
 from typing import List, Tuple
 
-# Two keyword sets that indicate escalating severity. These are plain-text
+# Emotion keyword dictionaries for classification. These are plain-text
 # substring matches (the incoming message is lowercased before matching).
-# Expand or tweak these sets to tune sensitivity.
-SOS_KEYWORDS = {
-    "sos", "mayday", "help me", "help!", "evacuate", "trapped", "🆘",
-    "under rubble", "bleeding", "unconscious", "not breathing", "no pulse", "blood", "explosion",
+HAPPY_KEYWORDS = {
+    "happy", "joy", "excited", "great", "awesome", "amazing", "wonderful", "fantastic",
+    "love", "perfect", "excellent", "brilliant", "thrilled", "delighted", "cheerful",
+    "😊", "😄", "😃", "🎉", "❤️", "😍", "🥰", "😁", "👍", "🎊"
 }
 
-URGENT_KEYWORDS = {
-    "fire", "injury", "injured", "flood", "collapse", "gas leak", "🚨",
-    "smoke", "power out", "danger", "stuck", "medical", "dangerous"
+SAD_KEYWORDS = {
+    "sad", "depressed", "crying", "tears", "heartbroken", "miserable", "devastated",
+    "disappointed", "upset", "down", "blue", "gloomy", "sorrowful", "grief",
+    "😢", "😭", "😞", "☹️", "😔", "💔", "😿", "😥", "😰"
+}
+
+ANGRY_KEYWORDS = {
+    "angry", "mad", "furious", "rage", "hate", "annoyed", "frustrated", "irritated",
+    "pissed", "outraged", "livid", "enraged", "bitter", "resentful", "hostile",
+    "😠", "😡", "🤬", "👿", "😤", "💢", "😾", "🔥"
+}
+
+SCARED_KEYWORDS = {
+    "scared", "afraid", "terrified", "frightened", "worried", "anxious", "nervous",
+    "panic", "fear", "fearful", "alarmed", "horrified", "petrified", "spooked",
+    "😨", "😰", "😱", "😟", "😧", "🙀", "😳", "😵"
 }
 
 
 def classify_text(text: str) -> Tuple[str, float, List[str]]:
-    """Classify a short message into a severity label.
+    """Classify a short message into an emotion label.
 
     Returns:
-      - label: 'sos' | 'urgent' | 'normal'
-      - score: heuristic confidence (1.0 high, ~0.7 medium, low otherwise)
+      - label: 'happy' | 'sad' | 'angry' | 'scared' | 'normal'
+      - score: heuristic confidence based on keyword matches (0.0 to 1.0)
       - matched_keywords: the subset of keywords that matched the text
 
     Implementation notes:
       - Empty or whitespace-only input is treated as 'normal' with score 0.0.
-      - We scan for SOS keywords first; any SOS hit yields an immediate 'sos'.
-      - If no SOS matches but one or more URGENT keywords match, we return
-        'urgent' with a lower confidence score.
+      - We scan for emotion keywords and return the emotion with most matches.
+      - If multiple emotions tie, priority is: angry > sad > scared > happy.
+      - Confidence increases with more keyword matches.
       - This function is intentionally simple: it avoids ML model dependencies
         so it can run offline and be inspected/edited easily.
     """
@@ -42,15 +55,38 @@ def classify_text(text: str) -> Tuple[str, float, List[str]]:
     # Lowercase the input for case-insensitive substring matching
     t = text.lower()
 
-    # Collect matches from each set. We return the matching keywords so the
-    # frontend or logs can show what triggered the classification.
-    sos_hits = [kw for kw in SOS_KEYWORDS if kw in t]
-    urgent_hits = [kw for kw in URGENT_KEYWORDS if kw in t]
+    # Collect matches from each emotion set
+    happy_hits = [kw for kw in HAPPY_KEYWORDS if kw in t]
+    sad_hits = [kw for kw in SAD_KEYWORDS if kw in t]
+    angry_hits = [kw for kw in ANGRY_KEYWORDS if kw in t]
+    scared_hits = [kw for kw in SCARED_KEYWORDS if kw in t]
 
-    # Priority: SOS > URGENT > NORMAL
-    if sos_hits:
-        return "sos", 1.0, sos_hits
-    if urgent_hits:
-        return "urgent", 0.7, urgent_hits
+    # Count matches for each emotion
+    emotion_scores = {
+        'happy': len(happy_hits),
+        'sad': len(sad_hits),
+        'angry': len(angry_hits),
+        'scared': len(scared_hits)
+    }
 
-    return "normal", 0.1, []
+    # Find the emotion with most matches
+    max_score = max(emotion_scores.values())
+    
+    if max_score == 0:
+        return "normal", 0.2, []
+    
+    # Priority order if tied: angry > sad > scared > happy
+    if emotion_scores['angry'] == max_score:
+        confidence = min(1.0, max_score * 0.3 + 0.4)
+        return "angry", confidence, angry_hits
+    elif emotion_scores['sad'] == max_score:
+        confidence = min(1.0, max_score * 0.3 + 0.4)
+        return "sad", confidence, sad_hits
+    elif emotion_scores['scared'] == max_score:
+        confidence = min(1.0, max_score * 0.3 + 0.4)
+        return "scared", confidence, scared_hits
+    elif emotion_scores['happy'] == max_score:
+        confidence = min(1.0, max_score * 0.3 + 0.4)
+        return "happy", confidence, happy_hits
+    
+    return "normal", 0.2, []

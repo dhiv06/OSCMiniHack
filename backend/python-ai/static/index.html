@@ -198,18 +198,68 @@
             margin-bottom: 15px;
         }
 
-        .ai-preview {
-            background: #e7f3ff;
-            border: 1px solid #bee5eb;
-            border-radius: 5px;
-            padding: 12px;
-            margin-bottom: 15px;
+        .ai-result-box {
+            background: #f8f9fa;
+            border: 2px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 10px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
             font-size: 14px;
-            display: none;
+            line-height: 1.4;
         }
 
-        .ai-preview.show {
+        .ai-result-box.has-result {
+            background: #e7f3ff;
+            border-color: #007bff;
+        }
+
+        .ai-result-box .placeholder {
+            color: #6c757d;
+            font-style: italic;
+        }
+
+        .classification-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+
+        .classification-tag.happy {
+            background: #28a745;
+            color: white;
+        }
+
+        .classification-tag.sad {
+            background: #6f42c1;
+            color: white;
+        }
+
+        .classification-tag.angry {
+            background: #dc3545;
+            color: white;
+        }
+
+        .classification-tag.scared {
+            background: #fd7e14;
+            color: white;
+        }
+
+        .classification-tag.normal {
+            background: #6c757d;
+            color: white;
+        }
+
+        .note {
             display: block;
+            color: #6c757d;
+            font-style: italic;
+            margin-top: 5px;
         }
 
         .file-upload {
@@ -289,22 +339,43 @@
             </div>
             
             <div class="compose-area">
-                <textarea class="message-input" id="messageInput" 
-                          placeholder="Type your message... AI will analyze and optimize before sending"></textarea>
-                
-                <div class="ai-preview" id="aiPreview">
-                    <div id="aiAnalysis"></div>
+                <!-- Step 1: Original Message Input -->
+                <div class="section border-bottom">
+                    <h4>📝 Your Message</h4>
+                    <textarea class="message-input" id="messageInput" 
+                              placeholder="Type your message here..."></textarea>
                 </div>
                 
-                <div class="file-upload">
-                    <input type="file" id="imageInput" accept="image/*">
-                    <img class="image-preview" id="imagePreview" alt="Preview">
-                    <div class="compress-info" id="compressInfo"></div>
+                <!-- Step 2: AI Classification -->
+                <div class="section border-bottom">
+                    <h4>🏷️ AI Classification</h4>
+                    <div class="ai-result-box" id="classificationResult">
+                        <span class="placeholder">Click "Analyze" to classify your message</span>
+                    </div>
+                </div>
+                
+                <!-- Step 3: AI Summarization -->
+                <div class="section border-bottom">
+                    <h4>📄 AI Summary</h4>
+                    <div class="ai-result-box" id="summaryResult">
+                        <span class="placeholder">Click "Analyze" to get summary</span>
+                    </div>
+                    <small class="note">This summarized version will be sent to your friend</small>
+                </div>
+                
+                <!-- Step 4: Image Upload -->
+                <div class="section border-bottom">
+                    <h4>🖼️ Image Upload</h4>
+                    <div class="file-upload">
+                        <input type="file" id="imageInput" accept="image/*">
+                        <img class="image-preview" id="imagePreview" alt="Preview">
+                        <div class="compress-info" id="compressInfo"></div>
+                    </div>
                 </div>
                 
                 <div class="send-controls">
-                    <button class="btn btn-primary" id="analyzeBtn">🧠 Analyze</button>
-                    <button class="btn btn-success" id="sendBtn" disabled>📤 Send</button>
+                    <button class="btn btn-primary" id="analyzeBtn">🧠 Analyze Message</button>
+                    <button class="btn btn-success" id="sendBtn" disabled>📤 Send Summary</button>
                 </div>
             </div>
         </div>
@@ -393,43 +464,53 @@
 
             async analyzeMessage() {
                 const text = document.getElementById('messageInput').value.trim();
-                if (!text) return;
+                if (!text) {
+                    alert('Please enter a message to analyze');
+                    return;
+                }
 
                 document.getElementById('analyzeBtn').textContent = '🧠 Analyzing...';
+                document.getElementById('analyzeBtn').disabled = true;
 
                 try {
-                    // Classify the message
+                    // Step 1: Classify the message
                     const classifyResponse = await fetch('/api/classify', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ text })
                     });
                     const classification = await classifyResponse.json();
+                    this.showClassification(classification);
 
-                    // Summarize if long
-                    let summary = text;
-                    if (text.length > 100) {
-                        const summarizeResponse = await fetch('/api/summarize', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({ text })
-                        });
-                        const summarizeResult = await summarizeResponse.json();
-                        summary = summarizeResult.summary;
-                    }
+                    // Step 2: Summarize the message
+                    const summarizeResponse = await fetch('/api/summarize', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text })
+                    });
+                    const summarizeResult = await summarizeResponse.json();
+                    this.showSummary(summarizeResult);
 
+                    // Store analysis for sending
                     this.currentAnalysis = {
                         original: text,
                         classification,
-                        summary,
+                        summary: summarizeResult.summary,
                         processedAt: new Date().toLocaleTimeString()
                     };
 
-                    this.showAnalysis();
+                    // Enable send button
+                    document.getElementById('sendBtn').disabled = false;
 
                 } catch (error) {
                     console.error('Analysis failed:', error);
-                    // Fallback to simple classification
+                    // Show error in result boxes
+                    document.getElementById('classificationResult').innerHTML = 
+                        '<span style="color: #dc3545;">❌ Classification failed</span>';
+                    document.getElementById('summaryResult').innerHTML = 
+                        '<span style="color: #dc3545;">❌ Summarization failed</span>';
+                    
+                    // Fallback - use original text
                     this.currentAnalysis = {
                         original: text,
                         classification: { label: 'normal', score: 0.5, matched: [] },
@@ -439,7 +520,52 @@
                     this.showAnalysis();
                 }
 
-                document.getElementById('analyzeBtn').textContent = '🧠 Analyze';
+                document.getElementById('analyzeBtn').textContent = '🧠 Analyze Message';
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+
+            showClassification(classification) {
+                const resultBox = document.getElementById('classificationResult');
+                resultBox.classList.add('has-result');
+                
+                const tagClass = this.getClassificationTagClass(classification.label);
+                const confidence = Math.round(classification.score * 100);
+                const keywords = classification.matched && classification.matched.length > 0 
+                    ? classification.matched.join(', ') : 'none detected';
+                
+                resultBox.innerHTML = `
+                    <div>
+                        <span class="classification-tag ${tagClass}">${classification.label.toUpperCase()}</span>
+                        <span style="font-weight: bold;">${confidence}% confidence</span>
+                        <br><small>Keywords: ${keywords}</small>
+                    </div>
+                `;
+            }
+
+            showSummary(summarizeResult) {
+                const resultBox = document.getElementById('summaryResult');
+                resultBox.classList.add('has-result');
+                
+                const summary = summarizeResult.summary || 'No summary available';
+                const sentences = summarizeResult.sentences || 1;
+                
+                resultBox.innerHTML = `
+                    <div>
+                        <strong>"${summary}"</strong>
+                        <br><small>Condensed to ${sentences} sentence${sentences !== 1 ? 's' : ''}</small>
+                    </div>
+                `;
+            }
+
+            getClassificationTagClass(label) {
+                switch(label.toLowerCase()) {
+                    case 'happy': return 'happy';
+                    case 'sad': return 'sad';
+                    case 'angry': return 'angry';
+                    case 'scared': return 'scared';
+                    case 'normal': return 'normal';
+                    default: return 'normal';
+                }
             }
 
             showAnalysis() {
@@ -511,22 +637,24 @@
             }
 
             async sendMessage() {
-                if (!this.currentAnalysis && !this.currentImage) {
-                    alert('Please analyze your message first');
+                if (!this.currentAnalysis) {
+                    alert('Please analyze your message first by clicking "Analyze Message"');
                     return;
                 }
 
+                // Create message data with SUMMARIZED version
                 const messageData = {
-                    text: this.currentAnalysis?.summary || '',
-                    classification: this.currentAnalysis?.classification,
+                    text: this.currentAnalysis.summary,  // Send the summary, not original
+                    classification: this.currentAnalysis.classification,
                     hasImage: !!this.currentImage,
-                    timestamp: new Date().toLocaleTimeString()
+                    timestamp: new Date().toLocaleTimeString(),
+                    isFromAI: true  // Mark as AI-processed
                 };
 
-                // Add to sent messages
+                // Add to sent messages (show what we're actually sending)
                 this.addMessage('sent', messageData);
 
-                // Send via P2P
+                // Send via P2P connection
                 if (this.connection && this.connection.open) {
                     this.connection.send(messageData);
                 } else {
@@ -580,9 +708,20 @@
                 document.getElementById('imageInput').value = '';
                 document.getElementById('imagePreview').style.display = 'none';
                 document.getElementById('compressInfo').textContent = '';
-                document.getElementById('aiPreview').classList.remove('show');
+                
+                // Clear AI result boxes
+                const classificationBox = document.getElementById('classificationResult');
+                classificationBox.innerHTML = '<span class="placeholder">Click "Analyze" to classify your message</span>';
+                classificationBox.classList.remove('has-result');
+                
+                const summaryBox = document.getElementById('summaryResult');
+                summaryBox.innerHTML = '<span class="placeholder">Click "Analyze" to get summary</span>';
+                summaryBox.classList.remove('has-result');
+                
+                // Reset state
                 this.currentAnalysis = null;
                 this.currentImage = null;
+                document.getElementById('sendBtn').disabled = true;
             }
 
             updateStatus(message, connected) {
