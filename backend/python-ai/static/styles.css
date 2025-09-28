@@ -28,6 +28,14 @@ body {
   .section-row { grid-template-columns: 1fr; }
 }
 
+.send-button {
+  display: block;
+  margin: 0 auto;
+  padding: 10px 16px;
+  margin-bottom: 20px;
+}
+
+
 /* 🧠 Typography */
 h1 {
   text-align: center;
