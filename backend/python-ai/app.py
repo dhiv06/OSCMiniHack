@@ -157,3 +157,4 @@ if __name__ == '__main__':
         logger.info('  lsof -i :%d    # or use: ss -ltnp | grep :%d', port, port)
         raise
 
+#cd /home/squidlord/OSCHackathon/OSCMiniHack/backend/python-ai && FLASK_APP=app.py FLASK_ENV=development python3 app.py 
