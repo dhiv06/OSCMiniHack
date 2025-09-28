@@ -162,6 +162,16 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+async function sendMessage(text) {
+  const response = await fetch('/api/send', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message: text })
+  });
+  const data = await response.json();
+  console.log('Server replied:', data);
+}
+
 
 
 /* dhivyas only
