@@ -1,109 +1,599 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>TerraLink X Demo</title>
-  <link rel="stylesheet" href="styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Enhanced P2P Messaging</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .panel {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .section {
+            padding: 20px;
+        }
+
+        .border-bottom {
+            border-bottom: 1px solid #eee;
+        }
+
+        .my-id {
+            margin-bottom: 15px;
+        }
+
+        .my-id strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .id-display {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            font-family: monospace;
+            border: 1px solid #dee2e6;
+            font-size: 12px;
+        }
+
+        .connect-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .connect-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 12px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056b3;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+        }
+
+        .btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .status.disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .chat-area {
+            height: 300px;
+            overflow-y: auto;
+            background: #f8f9fa;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            max-width: 85%;
+        }
+
+        .message.sent {
+            background: #007bff;
+            color: white;
+            margin-left: auto;
+        }
+
+        .message.received {
+            background: white;
+            border: 1px solid #dee2e6;
+        }
+
+        .message-meta {
+            font-size: 11px;
+            opacity: 0.7;
+            margin-bottom: 5px;
+        }
+
+        .ai-tag {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .tag-sos {
+            background: #dc3545;
+            color: white;
+        }
+
+        .tag-urgent {
+            background: #ffc107;
+            color: #212529;
+        }
+
+        .tag-normal {
+            background: #28a745;
+            color: white;
+        }
+
+        .compose-area {
+            padding: 20px;
+        }
+
+        .message-input {
+            width: 100%;
+            min-height: 80px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            resize: vertical;
+            margin-bottom: 15px;
+        }
+
+        .ai-preview {
+            background: #e7f3ff;
+            border: 1px solid #bee5eb;
+            border-radius: 5px;
+            padding: 12px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .ai-preview.show {
+            display: block;
+        }
+
+        .file-upload {
+            margin-bottom: 15px;
+        }
+
+        .file-upload input {
+            margin-bottom: 10px;
+        }
+
+        .image-preview {
+            max-width: 150px;
+            max-height: 150px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            display: none;
+        }
+
+        .compress-info {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .send-controls {
+            display: flex;
+            gap: 10px;
+        }
+
+        .send-controls button {
+            flex: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-  <!-- 🌐 Navigation Bar -->
-  <nav class="navbar">
-    <ul>
-      <li><a href="#home">🏠 Home</a></li>
-      <li><a href="#send">✉️ Send Message</a></li>
-      <li><a href="#text-tools">🎭 Text Tools</a></li>
-      <li><a href="#compressor">🐢 Image Compressor</a></li>
-    </ul>
-  </nav>
+    <div class="container">
+        <!-- Connection Panel -->
+        <div class="panel">
+            <div class="header">
+                <h2>🔗 Connection</h2>
+            </div>
+            
+            <div class="section border-bottom">
+                <div class="my-id">
+                    <strong>Your ID:</strong>
+                    <div class="id-display" id="myId">Generating...</div>
+                </div>
 
-  <!-- 🏠 Home Section -->
-  <section id="home" class="container">
-    <!--<h1>offline</h1>-->
-    <h1 class="animated-title">offline</h1>
+                <div class="connect-form">
+                    <input type="text" class="connect-input" id="friendId" placeholder="Enter friend's ID">
+                    <button class="btn btn-primary" id="connectBtn">Connect</button>
+                </div>
 
-    <!-- 🧪 Demo Mode -->
-    <div class="demo-toggle">
-      <label>
-        <input type="checkbox" id="demo-mode" onchange="toggleDemoMode()" />
-        Demo Mode 🧪
-      </label>
+                <div class="status disconnected" id="status">Disconnected</div>
+            </div>
+
+            <div class="section">
+                <h3>Messages</h3>
+                <div class="chat-area" id="chatArea">
+                    <div style="text-align: center; color: #666; margin-top: 50px;">
+                        Connect with your friend to start chatting
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Compose Panel -->
+        <div class="panel">
+            <div class="header">
+                <h2>🤖 AI-Enhanced Compose</h2>
+            </div>
+            
+            <div class="compose-area">
+                <textarea class="message-input" id="messageInput" 
+                          placeholder="Type your message... AI will analyze and optimize before sending"></textarea>
+                
+                <div class="ai-preview" id="aiPreview">
+                    <div id="aiAnalysis"></div>
+                </div>
+                
+                <div class="file-upload">
+                    <input type="file" id="imageInput" accept="image/*">
+                    <img class="image-preview" id="imagePreview" alt="Preview">
+                    <div class="compress-info" id="compressInfo"></div>
+                </div>
+                
+                <div class="send-controls">
+                    <button class="btn btn-primary" id="analyzeBtn">🧠 Analyze</button>
+                    <button class="btn btn-success" id="sendBtn" disabled>📤 Send</button>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- 👓 Colorblind Mode -->
-    <div class="colorblind-toggle">
-      <button id="btn-colorblind">👓 Colorblind mode</button>
-    </div>
-  </section>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.4.7/peerjs.min.js"></script>
+    <script>
+        class AIChat {
+            constructor() {
+                this.peer = null;
+                this.connection = null;
+                this.myId = null;
+                this.currentAnalysis = null;
+                this.currentImage = null;
+                this.init();
+            }
 
-  <!-- ✉️ Send Message Section -->
-  <section id="send" class="container">
-    <h2>✉️ Send Message ✉️</h2>
-    <textarea id="your-textarea-id" rows="3" placeholder="Type your message here"></textarea>
-    <div class="send-button">
-      <button onclick="sendMessage(document.getElementById('your-textarea-id').value)">Send</button>
-    </div>
-    <div id="send-result" class="result"></div>
-  </section>
+            init() {
+                // Generate ID
+                this.myId = 'ai_' + Math.random().toString(36).substr(2, 8);
+                document.getElementById('myId').textContent = this.myId;
 
-  <!-- 🎭 Classifier + Summarizer Section -->
-  <section id="text-tools" class="container">
-    <!-- 🎭 Classifier -->
-    <section id="classifier">
-      <h2>🎭 Classifier 🎭</h2>
-      <textarea id="class-text" rows="3" placeholder="Type a short message"></textarea>
-      <div class="word-count" id="class-count">0 characters</div>
+                // Setup event handlers
+                document.getElementById('connectBtn').addEventListener('click', () => this.connect());
+                document.getElementById('analyzeBtn').addEventListener('click', () => this.analyzeMessage());
+                document.getElementById('sendBtn').addEventListener('click', () => this.sendMessage());
+                document.getElementById('imageInput').addEventListener('change', (e) => this.handleImageUpload(e));
 
-      <div class="emoji-controls">
-        <button onclick="toggleEmojiPicker('emoji-picker-class')">😀</button>
-        <button id="btn-classify">Classify</button>
-      </div>
-      <div id="emoji-picker-class" class="emoji-box" style="display:none;">
-        <span onclick="insertEmoji('🆘', 'class-text', 'emoji-picker-class', event)" title="Emergency">🆘</span>
-        <span onclick="insertEmoji('🚨', 'class-text', 'emoji-picker-class', event)" title="Urgent">🚨</span>
-        <span onclick="insertEmoji('📡', 'class-text', 'emoji-picker-class', event)" title="Signal">📡</span>
-        <span onclick="insertEmoji('✅', 'class-text', 'emoji-picker-class', event)" title="Resolved">✅</span>
-        <span onclick="insertEmoji('📍', 'class-text', 'emoji-picker-class', event)" title="Location">📍</span>
-      </div>
-      <div id="class-result" class="result"><span id="class-output"></span></div>
-    </section>
+                // Initialize PeerJS
+                try {
+                    this.peer = new Peer(this.myId);
+                    this.peer.on('open', (id) => {
+                        console.log('My peer ID is: ' + id);
+                        document.getElementById('myId').textContent = id;
+                    });
+                    this.peer.on('connection', (conn) => {
+                        this.setupConnection(conn);
+                    });
+                } catch (error) {
+                    console.error('PeerJS failed, using simulation mode');
+                    this.setupSimulationMode();
+                }
+            }
 
-    <!-- 🪆 Summarizer -->
-    <section id="summarizer">
-      <h2>🪆 Summarize 🪆</h2>
-      <textarea id="sum-text" rows="4" placeholder="Paste a longer message"></textarea>
-      <div class="word-count" id="sum-count">0 characters</div>
+            setupSimulationMode() {
+                document.getElementById('connectBtn').onclick = () => {
+                    const friendId = document.getElementById('friendId').value;
+                    if (friendId) {
+                        this.updateStatus('Connected to ' + friendId + ' (simulation)', true);
+                        document.getElementById('sendBtn').disabled = false;
+                    }
+                };
+            }
 
-      <div class="emoji-controls">
-        <button onclick="toggleEmojiPicker('emoji-picker-sum')">😀</button>
-        <button id="btn-summarize">Summarize</button>
-      </div>
-      <div id="emoji-picker-sum" class="emoji-box" style="display:none;">
-        <span onclick="insertEmoji('📝', 'sum-text', 'emoji-picker-sum', event)" title="Note">📝</span>
-        <span onclick="insertEmoji('📄', 'sum-text', 'emoji-picker-sum', event)" title="Document">📄</span>
-        <span onclick="insertEmoji('🔍', 'sum-text', 'emoji-picker-sum', event)" title="Search">🔍</span>
-        <span onclick="insertEmoji('📚', 'sum-text', 'emoji-picker-sum', event)" title="Info">📚</span>
-        <span onclick="insertEmoji('✂️', 'sum-text', 'emoji-picker-sum', event)" title="Trim">✂️</span>
-      </div>
-      <div id="sum-result" class="result"><span id="sum-output"></span></div>
-    </section>
-  </section>
+            connect() {
+                const friendId = document.getElementById('friendId').value.trim();
+                if (!friendId) {
+                    alert('Please enter your friend\'s ID');
+                    return;
+                }
 
-  <!-- 🖼️ Image Compressor Section -->
-  <section id="compressor" class="container">
-    <h2>🐢 Image Compressor 🐢</h2>
-    <div class="compress-controls">
-      <input type="file" id="img-file" accept="image/*" />
-      <button id="btn-compress">Compress & Preview</button>
-    </div>
-    <div id="img-result" class="result"></div>
-  </section>
+                if (this.peer) {
+                    this.updateStatus('Connecting...', false);
+                    this.connection = this.peer.connect(friendId);
+                    this.setupConnection(this.connection);
+                } else {
+                    this.updateStatus('Connected to ' + friendId + ' (simulation)', true);
+                    document.getElementById('sendBtn').disabled = false;
+                }
+            }
 
-  <!-- 📎 Footer -->
-  <footer>
-    <small>Backend powered by Python modules; simple demo UI served by Flask.</small>
-  </footer>
+            setupConnection(conn) {
+                this.connection = conn;
+                conn.on('open', () => {
+                    this.updateStatus('Connected to ' + conn.peer, true);
+                    document.getElementById('sendBtn').disabled = false;
+                });
+                conn.on('data', (data) => {
+                    this.addMessage('received', data);
+                });
+                conn.on('close', () => {
+                    this.updateStatus('Disconnected', false);
+                    document.getElementById('sendBtn').disabled = true;
+                });
+            }
 
-  <script src="main.js"></script>
+            async analyzeMessage() {
+                const text = document.getElementById('messageInput').value.trim();
+                if (!text) return;
+
+                document.getElementById('analyzeBtn').textContent = '🧠 Analyzing...';
+
+                try {
+                    // Classify the message
+                    const classifyResponse = await fetch('/api/classify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ text })
+                    });
+                    const classification = await classifyResponse.json();
+
+                    // Summarize if long
+                    let summary = text;
+                    if (text.length > 100) {
+                        const summarizeResponse = await fetch('/api/summarize', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ text })
+                        });
+                        const summarizeResult = await summarizeResponse.json();
+                        summary = summarizeResult.summary;
+                    }
+
+                    this.currentAnalysis = {
+                        original: text,
+                        classification,
+                        summary,
+                        processedAt: new Date().toLocaleTimeString()
+                    };
+
+                    this.showAnalysis();
+
+                } catch (error) {
+                    console.error('Analysis failed:', error);
+                    // Fallback to simple classification
+                    this.currentAnalysis = {
+                        original: text,
+                        classification: { label: 'normal', score: 0.5, matched: [] },
+                        summary: text,
+                        processedAt: new Date().toLocaleTimeString()
+                    };
+                    this.showAnalysis();
+                }
+
+                document.getElementById('analyzeBtn').textContent = '🧠 Analyze';
+            }
+
+            showAnalysis() {
+                if (!this.currentAnalysis) return;
+
+                const { classification, summary, processedAt } = this.currentAnalysis;
+                
+                document.getElementById('aiAnalysis').innerHTML = `
+                    <div style="margin-bottom: 10px;">
+                        <span class="ai-tag tag-${classification.label}">${classification.label.toUpperCase()}</span>
+                        <span style="font-size: 12px;">Score: ${(classification.score * 100).toFixed(0)}%</span>
+                    </div>
+                    ${summary !== this.currentAnalysis.original ? `
+                        <div style="margin-bottom: 10px;">
+                            <strong>Summary:</strong> ${summary}
+                        </div>
+                    ` : ''}
+                    <div style="font-size: 12px; color: #666;">
+                        Keywords: ${classification.matched?.join(', ') || 'none'} • Processed: ${processedAt}
+                    </div>
+                `;
+                
+                document.getElementById('aiPreview').classList.add('show');
+            }
+
+            async handleImageUpload(event) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const preview = document.getElementById('imagePreview');
+                const info = document.getElementById('compressInfo');
+
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+
+                try {
+                    // Compress image
+                    const formData = new FormData();
+                    formData.append('image', file);
+
+                    const response = await fetch('/api/compress', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        const compressedBlob = await response.blob();
+                        const originalSize = (file.size / 1024).toFixed(1);
+                        const compressedSize = (compressedBlob.size / 1024).toFixed(1);
+                        const savings = (((file.size - compressedBlob.size) / file.size) * 100).toFixed(0);
+                        
+                        info.textContent = `Compressed: ${originalSize}KB → ${compressedSize}KB (${savings}% smaller)`;
+                        
+                        // Store compressed image
+                        this.currentImage = compressedBlob;
+                    } else {
+                        info.textContent = 'Compression failed';
+                    }
+                } catch (error) {
+                    console.error('Compression error:', error);
+                    info.textContent = 'Compression unavailable, using original';
+                    this.currentImage = file;
+                }
+            }
+
+            async sendMessage() {
+                if (!this.currentAnalysis && !this.currentImage) {
+                    alert('Please analyze your message first');
+                    return;
+                }
+
+                const messageData = {
+                    text: this.currentAnalysis?.summary || '',
+                    classification: this.currentAnalysis?.classification,
+                    hasImage: !!this.currentImage,
+                    timestamp: new Date().toLocaleTimeString()
+                };
+
+                // Add to sent messages
+                this.addMessage('sent', messageData);
+
+                // Send via P2P
+                if (this.connection && this.connection.open) {
+                    this.connection.send(messageData);
+                } else {
+                    // Simulation - fake response
+                    setTimeout(() => {
+                        this.addMessage('received', {
+                            text: 'Message received and understood!',
+                            classification: { label: 'normal', score: 0.8 },
+                            timestamp: new Date().toLocaleTimeString()
+                        });
+                    }, 1500);
+                }
+
+                // Clear form
+                this.clearComposer();
+            }
+
+            addMessage(type, data) {
+                const chatArea = document.getElementById('chatArea');
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${type}`;
+
+                if (typeof data === 'string') {
+                    // Simple text message
+                    messageEl.innerHTML = `
+                        <div class="message-meta">${new Date().toLocaleTimeString()}</div>
+                        <div>${data}</div>
+                    `;
+                } else {
+                    // Enhanced message with AI analysis
+                    messageEl.innerHTML = `
+                        <div class="message-meta">
+                            ${data.timestamp} 
+                            ${data.classification ? `<span class="ai-tag tag-${data.classification.label}">${data.classification.label}</span>` : ''}
+                        </div>
+                        <div>${data.text}</div>
+                        ${data.hasImage ? '<div style="font-size:12px;opacity:0.7;">📷 Image attached</div>' : ''}
+                    `;
+                }
+                
+                chatArea.appendChild(messageEl);
+                chatArea.scrollTop = chatArea.scrollHeight;
+
+                // Remove placeholder
+                const placeholder = chatArea.querySelector('div[style*="text-align: center"]');
+                if (placeholder) placeholder.remove();
+            }
+
+            clearComposer() {
+                document.getElementById('messageInput').value = '';
+                document.getElementById('imageInput').value = '';
+                document.getElementById('imagePreview').style.display = 'none';
+                document.getElementById('compressInfo').textContent = '';
+                document.getElementById('aiPreview').classList.remove('show');
+                this.currentAnalysis = null;
+                this.currentImage = null;
+            }
+
+            updateStatus(message, connected) {
+                const statusEl = document.getElementById('status');
+                statusEl.textContent = message;
+                statusEl.className = `status ${connected ? 'connected' : 'disconnected'}`;
+            }
+        }
+
+        // Start the app
+        new AIChat();
+    </script>
 </body>
 </html>

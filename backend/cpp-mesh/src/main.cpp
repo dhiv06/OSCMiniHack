@@ -1,54 +1,77 @@
-#include <asio.hpp>       // 🔌 networking/event loop library
-#include "network.hpp"    // 🧩 our MeshNode + Session classes
-#include <iostream>       // 💬 for printing to console
+#include <asio.hpp>       // 🔌 Networking/event loop library
+#include "network.hpp"    // 🧩 MeshNode + Session
+#include "utils.hpp"      // 🛠️ Dev B utilities
+#include <iostream>       // 💬 Printing to console
+#include <thread>         // 🧵 For running input loop separately
+#include <atomic>         // ⚡ For clean shutdown flag
 
-int main() {
-    // 1) Create the io_context
-    // Think of this as the "event loop brain".
-    // All asynchronous (non-blocking) tasks are run inside this object.
-    asio::io_context io;
+int main(int argc, char* argv[]) {
+    try {
+        // 1) Create the io_context (event loop brain)
+        asio::io_context io;
 
-    // 2) Pick a port for this node to listen on
-    // Each node needs its own port (like a "door number" for messages).
-    int port = 5000;
+        // 2) Determine port and node ID from args (defaults for convenience)
+        int port = 5000;
+        std::string node_id = "NodeA";
+        if (argc > 1) port = std::stoi(argv[1]);
+        if (argc > 2) node_id = argv[2];
 
-    // 3) Create a MeshNode
-    // Arguments:
-    //   io    -> event loop we just made
-    //   port  -> the port to listen on
-    //   "NodeA" -> a simple ID for this node
-    MeshNode node(io, port, "NodeA");
+        std::cout << "[INFO] Starting " << node_id << " on port " << port << "\n";
 
-    // 4) Attach a message handler
-    // Whenever this node receives a message from a peer,
-    // the handler function below will be called.
-    // Right now, we just print the message to the console.
-    node.on_message([](const std::string& msg) {
-        std::cout << "[Got message] " << msg << std::endl;
-    });
+        // 3) Create a MeshNode
+        MeshNode node(io, port, node_id);
 
-    // 5) Start listening for new connections
-    // This opens the port and prepares to accept peers.
-    node.start();
+        // 4) Attach message handler (called whenever a peer sends us something)
+        node.on_message([&](const std::string& msg) {
+            std::cout << "\n📩 [Message Received] " << msg << std::endl;
+            std::cout << "💬 Type a message: " << std::flush;
+        });
 
-    // 6) Optionally connect to another peer
-    // If you run another instance on port 5001,
-    // uncomment this to connect NodeA (5000) to NodeB (5001).
-    // node.connect_to_peer("127.0.0.1", 5001);
+        // 5) Start listening for peers
+        node.start();
 
-    // 7) Send a test broadcast
-    // This will deliver the message to ALL connected peers.
-    // If there are no peers yet, it won't go anywhere.
-    node.broadcast("Hello from NodeA!");
+        // 6) Optionally connect to a peer if specified
+        if (argc > 4) {
+            std::string peer_host = argv[3];
+            int peer_port = std::stoi(argv[4]);
+            node.connect_to_peer(peer_host, peer_port);
+            std::cout << "[INFO] Trying to connect to peer at "
+                      << peer_host << ":" << peer_port << "\n";
+        }
 
-    // 8) Run the event loop
-    // This call blocks and keeps the program alive.
-    // Behind the scenes, io.run() will:
-    //   - accept new peers
-    //   - read incoming messages
-    //   - write outgoing messages
-    //   - handle heartbeats
-    io.run();
+        // 7) Run the io_context in a separate thread so it handles networking
+        std::thread net_thread([&]() { io.run(); });
+
+        // 8) Start chat input loop
+        std::atomic<bool> running(true);
+        std::string text;
+        std::cout << "💬 Type a message (or /quit to exit): " << std::flush;
+
+        while (running && std::getline(std::cin, text)) {
+            if (text == "/quit") {
+                running = false;
+                io.stop(); // stop networking loop
+                break;
+            }
+
+            // Package message as JSON
+            nlohmann::json payload = { {"text", text} };
+            auto msg = devb::Utils::create_message("chat", payload, node_id);
+
+            // Send it to all peers
+            node.broadcast(msg.dump());
+
+            std::cout << "✅ Sent: " << text << std::endl;
+            std::cout << "💬 Type a message: " << std::flush;
+        }
+
+        // 9) Cleanup
+        if (net_thread.joinable()) net_thread.join();
+
+    } catch (const std::exception& e) {
+        std::cerr << "[ERROR] " << e.what() << "\n";
+        return 1;
+    }
 
     return 0;
 }

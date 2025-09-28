@@ -1,51 +1,53 @@
-#include "bridge.hpp"
-#include "utils.hpp"
-#include <nlohmann/json.hpp>
-#include <chrono>
+#include "ring_buffer.hpp"
+#include <mutex>
 
-using json = nlohmann::json;
+RingBuffer::RingBuffer(size_t capacity)
+    : capacity_(capacity), buf_(capacity) {}
 
-std::string bridge_message(const std::string &in) {
-    return "[bridge] " + in;
-}
+void RingBuffer::push(long long timestamp, const std::string &json_text) {
+    std::lock_guard<std::mutex> lock(mtx_);
+    // write into current head_
+    buf_[head_] = {timestamp, json_text};
 
-Bridge::Bridge(MeshNode &mesh, RingBuffer &buffer, int port)
-    : mesh_(mesh), buffer_(buffer), port_(port) {}
-
-// Parse JSON, attach timestamp, push to buffer
-void Bridge::handle_send(const std::string &body) {
-    try {
-        auto j = json::parse(body);
-        long long ts = static_cast<long long>(
-            std::chrono::duration_cast<std::chrono::milliseconds>(
-                std::chrono::system_clock::now().time_since_epoch()
-            ).count()
-        );
-        j["timestamp"] = ts;
-        buffer_.push(ts, j.dump());
-
-        // also broadcast to mesh
-        mesh_.broadcast(j.dump());
-
-    } catch (const std::exception &) {
-        // ignore parse errors
+    // grow count_ up to capacity_
+    if (count_ < capacity_) {
+        ++count_;
     }
+
+    // advance head_ (circular)
+    head_ = (head_ + 1) % capacity_;
 }
 
-// Collect messages since given timestamp
-std::string Bridge::handle_recv(long long since_ts) {
-    auto msgs = buffer_.get_since(since_ts);
-    json arr = json::array();
-    for (const auto &m : msgs) {
-        try {
-            arr.push_back(json::parse(m.json_text));
-        } catch (...) {
-            arr.push_back(m.json_text);
+std::vector<StoredMessage> RingBuffer::get_since(long long since_ts) {
+    std::lock_guard<std::mutex> lock(mtx_);
+    std::vector<StoredMessage> result;
+    result.reserve(count_);
+
+    // walk from the oldest to newest:
+    // oldest index = (head_ + capacity_ - count_) % capacity_
+    size_t start = (head_ + capacity_ - count_) % capacity_;
+    for (size_t i = 0; i < count_; ++i) {
+        size_t idx = (start + i) % capacity_;
+        const auto &msg = buf_[idx];
+        if (msg.timestamp > since_ts) {
+            result.push_back(msg);
         }
     }
-    return arr.dump();
+    return result;
 }
 
-void Bridge::start_server() {
-    // Placeholder – connect to HTTP server if needed
+bool RingBuffer::empty() const {
+    std::lock_guard<std::mutex> lock(mtx_);
+    return count_ == 0;
+}
+
+size_t RingBuffer::size() const {
+    std::lock_guard<std::mutex> lock(mtx_);
+    return count_;
+}
+
+void RingBuffer::clear() {
+    std::lock_guard<std::mutex> lock(mtx_);
+    count_ = 0;
+    head_ = 0;
 }
