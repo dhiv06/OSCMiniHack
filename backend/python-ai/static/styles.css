@@ -441,8 +441,61 @@ button:active {
   animation: bounce 0.3s ease;
 }
 
+<<<<<<< HEAD
 @keyframes bounce {
   0%   { transform: scale(1); }
   50%  { transform: scale(1.4); }
   100% { transform: scale(1); }
 }*/
+=======
+/* Panels */
+body.colorblind-mode .container,
+body.colorblind-mode section {
+  background: #f3f3f3 !important;
+  border: 2px solid #333 !important;
+}
+
+/* Headings */
+body.colorblind-mode h1,
+body.colorblind-mode h2 {
+  color: #1f77b4 !important; /* blue */
+}
+
+/* Buttons */
+body.colorblind-mode button,
+body.colorblind-mode #colorblind-toggle {
+  background: #1f77b4 !important; /* blue */
+  color: #fff !important;
+}
+body.colorblind-mode button:hover,
+body.colorblind-mode #colorblind-toggle:hover {
+  background: #ff7f0e !important; /* orange */
+  color: #fff !important;
+}
+
+/* Result boxes */
+body.colorblind-mode .result {
+  background: #e6e6e6 !important;
+  border: 1px solid #999 !important;
+  color: #1a1a1a !important;
+}
+
+/* Graph elements */
+body.colorblind-mode .node { fill: #ff9900 !important; }  /* orange */
+body.colorblind-mode .link { stroke: #0066cc !important; stroke-width: 2; } /* blue */
+
+
+.colorblind-toggle {
+  display: flex;
+  justify-content: flex-end;  /* pushes button to far right */
+  margin-bottom: 3rem;        /* space beneath it */
+}
+
+#btn-colorblind {
+  font-size: 0.8rem;          /* shrink text */
+  padding: 4px 8px;           /* shrink button */
+}
+
+
+
+>>>>>>> 1844d17 (Update index.html and styles.css with new changes)
