@@ -65,7 +65,7 @@ python start_feelink.py
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-username/feelink.git
+git clone https://github.com/dhiv06/OSCMiniHack.git
 cd feelink
 
 # 2. Create Python virtual environment
